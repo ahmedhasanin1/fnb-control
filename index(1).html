@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f47b00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="F&B Control">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
+<link rel="apple-touch-icon" href="./FNB_Control_192.png">
+<title>F&B Control</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#eef1f3}
+body{display:flex;align-items:center;justify-content:center}
+.card{width:min(92%,420px);padding:28px 22px;border-radius:24px;background:#fff;
+box-shadow:0 14px 40px rgba(20,28,36,.14);text-align:center}
+.icon{width:104px;height:104px;border-radius:24px;margin:0 auto 18px;box-shadow:0 8px 22px rgba(20,28,36,.18)}
+h1{margin:0;color:#20262d;font-size:23px}
+p{color:#68737c;font-size:13px;line-height:1.5}
+button{width:100%;height:48px;border:0;border-radius:13px;background:#f47b00;color:#fff;
+font-size:14px;font-weight:900;cursor:pointer}
+.small{font-size:10px;color:#929aa1;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="card">
+<img class="icon" src="./FNB_Control_192.png" alt="F&B Control">
+<h1>F&B CONTROL</h1>
+<p>Blue Reef Resort<br>Food & Beverage Management System</p>
+<button onclick="openApp()">OPEN F&B CONTROL</button>
+<div class="small">Install this page on your phone for the professional app icon.</div>
+</div>
+<script>
+/*
+ IMPORTANT:
+ Replace the value below with your deployed Google Apps Script Web App URL.
+ Example:
+ https://script.google.com/macros/s/XXXXXXXX/exec
+*/
+const APP_URL = 'https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
+
+function openApp(){
+  if(!APP_URL || APP_URL.indexOf('PASTE_') === 0){
+    alert('Please add your Google Apps Script Web App URL in index.html first.');
+    return;
+  }
+  location.href = APP_URL + '?page=mobile';
+}
+</script>
+</body>
+</html>
