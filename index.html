@@ -13,41 +13,43 @@
 <title>F&B Control</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#eef1f3}
-body{display:flex;align-items:center;justify-content:center}
-.card{width:min(92%,420px);padding:28px 22px;border-radius:24px;background:#fff;
-box-shadow:0 14px 40px rgba(20,28,36,.14);text-align:center}
-.icon{width:104px;height:104px;border-radius:24px;margin:0 auto 18px;box-shadow:0 8px 22px rgba(20,28,36,.18)}
-h1{margin:0;color:#20262d;font-size:23px}
-p{color:#68737c;font-size:13px;line-height:1.5}
-button{width:100%;height:48px;border:0;border-radius:13px;background:#f47b00;color:#fff;
-font-size:14px;font-weight:900;cursor:pointer}
-.small{font-size:10px;color:#929aa1;margin-top:14px}
+html,body{margin:0;width:100%;height:100%;background:#eef1f3;font-family:Arial,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;width:100%;height:100%;border:0;background:#eef1f3}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eef1f3;z-index:5}
+.card{width:min(88%,380px);padding:28px 22px;border-radius:24px;background:#fff;box-shadow:0 14px 40px rgba(20,28,36,.14);text-align:center}
+.icon{width:92px;height:92px;border-radius:22px;margin:0 auto 16px;box-shadow:0 8px 22px rgba(20,28,36,.18)}
+h1{margin:0;color:#20262d;font-size:22px}
+p{color:#68737c;font-size:13px;line-height:1.5;margin:10px 0 0}
+.error{display:none;margin-top:16px;color:#b42318;font-size:12px;line-height:1.5}
 </style>
 </head>
 <body>
-<div class="card">
-<img class="icon" src="./FNB_Control_192.png" alt="F&B Control">
-<h1>F&B CONTROL</h1>
-<p>Blue Reef Resort<br>Food & Beverage Management System</p>
-<button onclick="openApp()">OPEN F&B CONTROL</button>
-<div class="small">Install this page on your phone for the professional app icon.</div>
+<div id="loading">
+  <div class="card">
+    <img class="icon" src="./FNB_Control_192.png" alt="F&B Control">
+    <h1>F&B CONTROL</h1>
+    <p>Opening Blue Reef F&B Control Center…</p>
+    <div id="err" class="error">The system could not be loaded. Please check the internet connection.</div>
+  </div>
 </div>
-<script>
-/*
- IMPORTANT:
- Replace the value below with your deployed Google Apps Script Web App URL.
- Example:
- https://script.google.com/macros/s/XXXXXXXX/exec
-*/
-const APP_URL = 'https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
 
-function openApp(){
-  if(!APP_URL || APP_URL.indexOf('PASTE_') === 0){
-    alert('Please add your Google Apps Script Web App URL in index.html first.');
-    return;
-  }
-  location.href = APP_URL + '?page=mobile';
+<iframe id="app" title="Blue Reef F&B Control Center" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+<script>
+const APP_URL='https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
+const frame=document.getElementById('app');
+const loading=document.getElementById('loading');
+const err=document.getElementById('err');
+
+frame.addEventListener('load',()=>{ loading.style.display='none'; });
+setTimeout(()=>{
+  if(loading.style.display!=='none') err.style.display='block';
+},12000);
+
+frame.src=APP_URL+'?page=mobile';
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 </script>
 </body>
