@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="F&B Control">
-<link rel="manifest" href="./manifest.json?v=20261003-v10">
+<link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
 <link rel="apple-touch-icon" href="./FNB_Control_192.png">
 <title>F&B Control</title>
@@ -96,8 +96,6 @@ p{
 </iframe>
 
 <script>
-'use strict';
-
 const APP_URL =
 'https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
 
@@ -105,84 +103,80 @@ const frame = document.getElementById('app');
 const loading = document.getElementById('loading');
 const err = document.getElementById('err');
 
-const ALLOWED = [
-  'mobile',
-  'pos',
-  'search',
-  'checkedit',
-  'inventory',
-  'reports',
-  'analytics',
-  'management',
-  'master',
-  'audit',
-  'backup'
-];
-
-let currentPage = '';
-
-function readHashPage(){
-  const hash = (window.location.hash || '').replace(/^#/, '').trim();
-
-  if(hash === '' || hash === 'home'){
-    return 'mobile';
-  }
-
-  return ALLOWED.indexOf(hash) >= 0 ? hash : 'mobile';
-}
-
-function moduleUrl(page){
-  return APP_URL + '?page=' + encodeURIComponent(page);
-}
-
-function loadFromHash(){
-  const page = readHashPage();
-
-  if(page === currentPage){
-    return;
-  }
-
-  currentPage = page;
-  loading.style.display = 'flex';
-  frame.src = moduleUrl(page);
-}
-
 /*
-  Native URL-hash navigation only:
-  Home -> #pos creates normal browser history.
-  Android Back -> #home restores Home.
+  PWA navigation control
+  ----------------------
+  Home is always the first history state.
+  When the user enters a module, the browser receives
+  a new history state. Android Back then returns to Home
+  instead of leaving the PWA or showing a blank page.
 */
-window.addEventListener('hashchange', loadFromHash);
-window.addEventListener('popstate', loadFromHash);
 
-if(!window.location.hash){
-  history.replaceState(
-    {fnbPage:'mobile'},
-    '',
-    '#home'
-  );
+const HOME_URL = APP_URL + '?page=mobile';
+
+let currentUrl = HOME_URL;
+
+function openApp(url, addHistory = true){
+  if(!url) return;
+
+  currentUrl = url;
+
+  if(addHistory){
+    history.pushState(
+      {fnbPage:url},
+      '',
+      '#app'
+    );
+  }
+
+  frame.src = url;
 }
 
-loadFromHash();
+function goHome(){
+  currentUrl = HOME_URL;
+  frame.src = HOME_URL;
+}
+
+window.addEventListener('popstate', function(){
+  goHome();
+});
+
+window.addEventListener('pageshow', function(){
+  if(!frame.src || frame.src === 'about:blank'){
+    goHome();
+  }
+});
 
 frame.addEventListener('load', function(){
-  loading.style.display = 'none';
+  loading.style.display='none';
 });
 
 setTimeout(function(){
-  if(loading.style.display !== 'none'){
-    err.style.display = 'block';
+  if(loading.style.display!=='none'){
+    err.style.display='block';
   }
-}, 12000);
+},12000);
 
+/*
+  Start at Home.
+  replaceState prevents an unnecessary blank first history entry.
+*/
+history.replaceState(
+  {fnbPage:HOME_URL},
+  '',
+  '#home'
+);
+
+frame.src = HOME_URL;
+
+/*
+  Service Worker
+*/
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register(
-      './sw.js?v=20261003-v10',
-      {updateViaCache:'none'}
-    ).then(function(reg){
-      return reg.update ? reg.update() : null;
-    }).catch(function(){});
+    navigator.serviceWorker
+      .register('./sw.js')
+      .catch(function(){});
   });
 }
 </script>
