@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f47b00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="F&B Control">
+<link rel="manifest" href="./manifest.json?v=20261003-v9">
+<link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
+<link rel="apple-touch-icon" href="./FNB_Control_192.png">
+<title>F&B Control</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:#eef1f3;font-family:Arial,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;width:100%;height:100%;border:0;background:#eef1f3}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eef1f3;z-index:5}
+.card{width:min(88%,380px);padding:28px 22px;border-radius:24px;background:#fff;box-shadow:0 14px 40px rgba(20,28,36,.14);text-align:center}
+.icon{width:92px;height:92px;border-radius:22px;margin:0 auto 16px;box-shadow:0 8px 22px rgba(20,28,36,.18)}
+h1{margin:0;color:#20262d;font-size:22px}
+p{color:#68737c;font-size:13px;line-height:1.5;margin:10px 0 0}
+.error{display:none;margin-top:16px;color:#b42318;font-size:12px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="card">
+    <img class="icon" src="./FNB_Control_192.png" alt="F&B Control">
+    <h1>F&B CONTROL</h1>
+    <p>Opening Blue Reef F&B Control Center…</p>
+    <div id="err" class="error">The system could not be loaded. Please check the internet connection.</div>
+  </div>
+</div>
+
+<iframe id="app" title="Blue Reef F&B Control Center"
+        allow="clipboard-read; clipboard-write; fullscreen"
+        referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+<script>
+'use strict';
+
+const APP_URL='https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
+const HOME_URL=APP_URL+'?page=mobile';
+
+const frame=document.getElementById('app');
+const loading=document.getElementById('loading');
+const err=document.getElementById('err');
+
+const ALLOWED=[
+  'mobile','pos','search','checkedit','inventory',
+  'reports','analytics','management','master','audit','backup'
+];
+
+let currentPage='mobile';
+let navigationBusy=false;
+let lastNavigationKey='';
+let navigationTimer=0;
+
+function urlFor(page){
+  return APP_URL+'?page='+encodeURIComponent(page)+'&pwa=9';
+}
+
+function go(page,push){
+  page=String(page||'mobile');
+  if(ALLOWED.indexOf(page)<0) page='mobile';
+
+  var key=page+'|'+(push?'push':'replace');
+
+  /*
+    Ignore duplicate messages / double taps / duplicate popstate events.
+  */
+  if(page===currentPage && !push){
+    return;
+  }
+
+  if(key===lastNavigationKey){
+    return;
+  }
+
+  lastNavigationKey=key;
+  clearTimeout(navigationTimer);
+  navigationTimer=setTimeout(function(){lastNavigationKey='';},700);
+
+  currentPage=page;
+
+  if(push){
+    history.pushState({fnbPage:page},'',page==='mobile'?'#home':'#'+page);
+  }
+
+  navigationBusy=true;
+  frame.src=urlFor(page);
+}
+
+window.addEventListener('message',function(event){
+  var data=event.data;
+  if(!data || data.type!=='FNB_NAVIGATE') return;
+
+  var page=String(data.page||'mobile');
+  if(ALLOWED.indexOf(page)<0) return;
+
+  /*
+    Only one top-level history entry is created for a module.
+  */
+  if(page===currentPage){
+    return;
+  }
+
+  go(page,true);
+});
+
+window.addEventListener('popstate',function(event){
+  var page=event.state && event.state.fnbPage;
+  page=page && ALLOWED.indexOf(page)>=0 ? page : 'mobile';
+
+  /*
+    The Android back gesture should cause exactly one frame navigation.
+  */
+  if(page===currentPage){
+    return;
+  }
+
+  go(page,false);
+});
+
+history.replaceState({fnbPage:'mobile'},'','#home');
+currentPage='mobile';
+frame.src=HOME_URL;
+
+frame.addEventListener('load',function(){
+  navigationBusy=false;
+  loading.style.display='none';
+});
+
+setTimeout(function(){
+  if(loading.style.display!=='none'){
+    err.style.display='block';
+  }
+},12000);
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js?v=20261003-v9',{
+      updateViaCache:'none'
+    }).then(function(reg){
+      return reg.update ? reg.update() : null;
+    }).catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
