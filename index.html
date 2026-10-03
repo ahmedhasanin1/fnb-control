@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f47b00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="F&B Control">
+
+<link rel="manifest" href="./manifest.json?v=20261003">
+<link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
+<link rel="apple-touch-icon" href="./FNB_Control_192.png">
+
+<title>F&B Control</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#eef1f3;
+  font-family:Arial,sans-serif;
+  overflow:hidden
+}
+#app{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#eef1f3
+}
+#loading{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eef1f3;
+  z-index:5
+}
+.card{
+  width:min(88%,380px);
+  padding:28px 22px;
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 14px 40px rgba(20,28,36,.14);
+  text-align:center
+}
+.icon{
+  width:92px;
+  height:92px;
+  border-radius:22px;
+  margin:0 auto 16px;
+  box-shadow:0 8px 22px rgba(20,28,36,.18)
+}
+h1{
+  margin:0;
+  color:#20262d;
+  font-size:22px
+}
+p{
+  color:#68737c;
+  font-size:13px;
+  line-height:1.5;
+  margin:10px 0 0
+}
+.error{
+  display:none;
+  margin-top:16px;
+  color:#b42318;
+  font-size:12px;
+  line-height:1.5
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">
+  <div class="card">
+    <img class="icon" src="./FNB_Control_192.png" alt="F&B Control">
+    <h1>F&B CONTROL</h1>
+    <p>Opening Blue Reef F&B Control Center…</p>
+    <div id="err" class="error">
+      The system could not be loaded. Please check the internet connection.
+    </div>
+  </div>
+</div>
+
+<iframe
+  id="app"
+  title="Blue Reef F&B Control Center"
+  allow="clipboard-read; clipboard-write; fullscreen"
+  referrerpolicy="strict-origin-when-cross-origin">
+</iframe>
+
+<script>
+'use strict';
+
+const APP_URL =
+'https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
+
+const frame = document.getElementById('app');
+const loading = document.getElementById('loading');
+const err = document.getElementById('err');
+
+const HOME_URL = APP_URL + '?page=mobile';
+
+const ALLOWED_PAGES = [
+  'mobile',
+  'pos',
+  'search',
+  'checkedit',
+  'inventory',
+  'reports',
+  'analytics',
+  'management',
+  'master',
+  'audit',
+  'backup'
+];
+
+function pageUrl(page){
+  return APP_URL + '?page=' + encodeURIComponent(page);
+}
+
+/*
+  IMPORTANT:
+  Apps Script pages are cross-origin from GitHub Pages.
+  Navigation is performed with Location.replace() so the iframe
+  itself does not build a second Back history.
+*/
+function loadFrame(url){
+  try{
+    frame.contentWindow.location.replace(url);
+  }catch(e){
+    /*
+      Cross-origin Location.replace() is supported for navigation.
+      This fallback is only for unusual browser restrictions.
+      It replaces the iframe element instead of creating a second
+      top-level page.
+    */
+    const old = frame;
+    const fresh = old.cloneNode(false);
+    old.parentNode.replaceChild(fresh, old);
+    fresh.src = url;
+    fresh.addEventListener('load', function(){
+      loading.style.display = 'none';
+    });
+  }
+}
+
+function openModule(page){
+  page = String(page || 'mobile');
+
+  if(ALLOWED_PAGES.indexOf(page) === -1){
+    return;
+  }
+
+  history.pushState(
+    {fnbPage: page},
+    '',
+    '#' + page
+  );
+
+  loadFrame(pageUrl(page));
+}
+
+/*
+  Home / module request from Apps Script Home.
+*/
+window.addEventListener('message', function(event){
+
+  const data = event.data;
+
+  if(!data || data.type !== 'FNB_NAVIGATE'){
+    return;
+  }
+
+  const page = String(data.page || 'mobile');
+
+  if(ALLOWED_PAGES.indexOf(page) === -1){
+    return;
+  }
+
+  openModule(page);
+
+});
+
+/*
+  Android / browser Back.
+  The top-level PWA history is now the only intended application history.
+*/
+window.addEventListener('popstate', function(event){
+
+  const page = event.state && event.state.fnbPage;
+
+  if(!page || page === 'mobile'){
+    loadFrame(HOME_URL);
+    return;
+  }
+
+  if(ALLOWED_PAGES.indexOf(page) === -1){
+    loadFrame(HOME_URL);
+    return;
+  }
+
+  loadFrame(pageUrl(page));
+
+});
+
+/*
+  Initial state = Home.
+*/
+history.replaceState(
+  {fnbPage: 'mobile'},
+  '',
+  '#home'
+);
+
+loadFrame(HOME_URL);
+
+frame.addEventListener('load', function(){
+  loading.style.display = 'none';
+});
+
+setTimeout(function(){
+
+  if(loading.style.display !== 'none'){
+    err.style.display = 'block';
+  }
+
+}, 12000);
+
+/*
+  Service Worker.
+  Query string forces the browser to check the new worker code.
+*/
+if('serviceWorker' in navigator){
+
+  window.addEventListener('load', function(){
+
+    navigator.serviceWorker
+      .register('./sw.js?v=20261003', {
+        updateViaCache: 'none'
+      })
+      .then(function(reg){
+        if(reg && reg.update){
+          return reg.update();
+        }
+      })
+      .catch(function(){});
+
+  });
+
+}
+</script>
+
+</body>
+</html>
