@@ -11,18 +11,70 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
 <link rel="apple-touch-icon" href="./FNB_Control_192.png">
 <title>F&B Control</title>
+
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:#eef1f3;font-family:Arial,sans-serif;overflow:hidden}
-#app{position:fixed;inset:0;width:100%;height:100%;border:0;background:#eef1f3}
-#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eef1f3;z-index:5}
-.card{width:min(88%,380px);padding:28px 22px;border-radius:24px;background:#fff;box-shadow:0 14px 40px rgba(20,28,36,.14);text-align:center}
-.icon{width:92px;height:92px;border-radius:22px;margin:0 auto 16px;box-shadow:0 8px 22px rgba(20,28,36,.18)}
-h1{margin:0;color:#20262d;font-size:22px}
-p{color:#68737c;font-size:13px;line-height:1.5;margin:10px 0 0}
-.error{display:none;margin-top:16px;color:#b42318;font-size:12px;line-height:1.5}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#eef1f3;
+  font-family:Arial,sans-serif;
+  overflow:hidden
+}
+#app{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#eef1f3
+}
+#loading{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eef1f3;
+  z-index:5
+}
+.card{
+  width:min(88%,380px);
+  padding:28px 22px;
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 14px 40px rgba(20,28,36,.14);
+  text-align:center
+}
+.icon{
+  width:92px;
+  height:92px;
+  border-radius:22px;
+  margin:0 auto 16px;
+  box-shadow:0 8px 22px rgba(20,28,36,.18)
+}
+h1{
+  margin:0;
+  color:#20262d;
+  font-size:22px
+}
+p{
+  color:#68737c;
+  font-size:13px;
+  line-height:1.5;
+  margin:10px 0 0
+}
+.error{
+  display:none;
+  margin-top:16px;
+  color:#b42318;
+  font-size:12px;
+  line-height:1.5
+}
 </style>
 </head>
+
 <body>
 
 <div id="loading">
@@ -47,13 +99,13 @@ p{color:#68737c;font-size:13px;line-height:1.5;margin:10px 0 0}
 const APP_URL =
 'https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
 
-const frame=document.getElementById('app');
-const loading=document.getElementById('loading');
-const err=document.getElementById('err');
+const frame = document.getElementById('app');
+const loading = document.getElementById('loading');
+const err = document.getElementById('err');
 
-const HOME_URL=APP_URL+'?page=mobile';
+const HOME_URL = APP_URL + '?page=mobile';
 
-const ALLOWED_PAGES=[
+const ALLOWED_PAGES = [
   'mobile',
   'pos',
   'search',
@@ -68,85 +120,94 @@ const ALLOWED_PAGES=[
 ];
 
 function pageUrl(page){
-  return APP_URL+'?page='+encodeURIComponent(page);
-}
-
-function openPage(page,addHistory){
-  page=String(page||'mobile');
-
-  if(ALLOWED_PAGES.indexOf(page)===-1){
-    page='mobile';
-  }
-
-  if(addHistory){
-    history.pushState(
-      {fnbPage:page},
-      '',
-      '#'+page
-    );
-  }
-
-  frame.src=pageUrl(page);
-}
-
-function openHome(addHistory){
-  if(addHistory){
-    history.pushState(
-      {fnbPage:'mobile'},
-      '',
-      '#home'
-    );
-  }
-
-  frame.src=HOME_URL;
+  return APP_URL + '?page=' + encodeURIComponent(page);
 }
 
 /*
-  Home / Apps Script navigation request.
+  IMPORTANT:
+  Use child-window location.replace() so the iframe itself
+  does NOT add a browser-history entry.
+
+  The ONLY history stack is the GitHub PWA's top-level stack.
 */
-window.addEventListener('message',function(event){
+function loadFrameWithoutChildHistory(url){
+  try{
+    if(frame.contentWindow && frame.contentWindow.location){
+      frame.contentWindow.location.replace(url);
+      return;
+    }
+  }catch(e){}
 
-  var data=event.data;
+  frame.src = url;
+}
 
-  if(!data || data.type!=='FNB_NAVIGATE'){
+function openPage(page){
+  page = String(page || 'mobile');
+
+  if(ALLOWED_PAGES.indexOf(page) === -1){
+    page = 'mobile';
+  }
+
+  history.pushState(
+    {fnbPage:page},
+    '',
+    '#' + page
+  );
+
+  loadFrameWithoutChildHistory(pageUrl(page));
+}
+
+function openHome(){
+  loadFrameWithoutChildHistory(HOME_URL);
+}
+
+/*
+  Receive navigation requests from the Apps Script Home.
+*/
+window.addEventListener('message', function(event){
+
+  var data = event.data;
+
+  if(!data || data.type !== 'FNB_NAVIGATE'){
     return;
   }
 
-  var page=String(data.page||'mobile');
+  var page = String(data.page || 'mobile');
 
-  if(ALLOWED_PAGES.indexOf(page)===-1){
+  if(ALLOWED_PAGES.indexOf(page) === -1){
     return;
   }
 
-  openPage(page,true);
+  openPage(page);
 
 });
 
 
 /*
   Android Back / browser Back.
+  Because iframe navigation uses replace(), this popstate
+  belongs to the PWA itself.
 */
-window.addEventListener('popstate',function(event){
+window.addEventListener('popstate', function(event){
 
-  var page=event.state && event.state.fnbPage;
+  var page = event.state && event.state.fnbPage;
 
-  if(!page || page==='mobile'){
-    frame.src=HOME_URL;
+  if(!page || page === 'mobile'){
+    openHome();
     return;
   }
 
-  if(ALLOWED_PAGES.indexOf(page)===-1){
-    frame.src=HOME_URL;
+  if(ALLOWED_PAGES.indexOf(page) === -1){
+    openHome();
     return;
   }
 
-  frame.src=pageUrl(page);
-
+  loadFrameWithoutChildHistory(pageUrl(page));
 });
 
 
 /*
-  First state = Home.
+  Initial state.
 */
 history.replaceState(
   {fnbPage:'mobile'},
@@ -154,21 +215,20 @@ history.replaceState(
   '#home'
 );
 
-frame.src=HOME_URL;
+loadFrameWithoutChildHistory(HOME_URL);
 
 
 /*
-  Loading.
+  Loading screen.
 */
-frame.addEventListener('load',function(){
-  loading.style.display='none';
+frame.addEventListener('load', function(){
+  loading.style.display = 'none';
 });
-
 
 setTimeout(function(){
 
-  if(loading.style.display!=='none'){
-    err.style.display='block';
+  if(loading.style.display !== 'none'){
+    err.style.display = 'block';
   }
 
 },12000);
@@ -179,7 +239,7 @@ setTimeout(function(){
 */
 if('serviceWorker' in navigator){
 
-  window.addEventListener('load',function(){
+  window.addEventListener('load', function(){
 
     navigator.serviceWorker
       .register('./sw.js')
