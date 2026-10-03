@@ -11,70 +11,18 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
 <link rel="apple-touch-icon" href="./FNB_Control_192.png">
 <title>F&B Control</title>
-
 <style>
 *{box-sizing:border-box}
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:#eef1f3;
-  font-family:Arial,sans-serif;
-  overflow:hidden
-}
-#app{
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-  border:0;
-  background:#eef1f3
-}
-#loading{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#eef1f3;
-  z-index:5
-}
-.card{
-  width:min(88%,380px);
-  padding:28px 22px;
-  border-radius:24px;
-  background:#fff;
-  box-shadow:0 14px 40px rgba(20,28,36,.14);
-  text-align:center
-}
-.icon{
-  width:92px;
-  height:92px;
-  border-radius:22px;
-  margin:0 auto 16px;
-  box-shadow:0 8px 22px rgba(20,28,36,.18)
-}
-h1{
-  margin:0;
-  color:#20262d;
-  font-size:22px
-}
-p{
-  color:#68737c;
-  font-size:13px;
-  line-height:1.5;
-  margin:10px 0 0
-}
-.error{
-  display:none;
-  margin-top:16px;
-  color:#b42318;
-  font-size:12px;
-  line-height:1.5
-}
+html,body{margin:0;width:100%;height:100%;background:#eef1f3;font-family:Arial,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;width:100%;height:100%;border:0;background:#eef1f3}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eef1f3;z-index:5}
+.card{width:min(88%,380px);padding:28px 22px;border-radius:24px;background:#fff;box-shadow:0 14px 40px rgba(20,28,36,.14);text-align:center}
+.icon{width:92px;height:92px;border-radius:22px;margin:0 auto 16px;box-shadow:0 8px 22px rgba(20,28,36,.18)}
+h1{margin:0;color:#20262d;font-size:22px}
+p{color:#68737c;font-size:13px;line-height:1.5;margin:10px 0 0}
+.error{display:none;margin-top:16px;color:#b42318;font-size:12px;line-height:1.5}
 </style>
 </head>
-
 <body>
 
 <div id="loading">
@@ -96,6 +44,8 @@ p{
 </iframe>
 
 <script>
+'use strict';
+
 const APP_URL =
 'https://script.google.com/macros/s/AKfycbzz8o-X8e_z0jgXza8kwC9fL6eFvmy8Ngzbhc0aeqQN9wtuIwAQIsfwcGi491KtCGp2Xg/exec';
 
@@ -103,83 +53,68 @@ const frame = document.getElementById('app');
 const loading = document.getElementById('loading');
 const err = document.getElementById('err');
 
-/*
-  PWA navigation control
-  ----------------------
-  Home is always the first history state.
-  When the user enters a module, the browser receives
-  a new history state. Android Back then returns to Home
-  instead of leaving the PWA or showing a blank page.
-*/
+const ALLOWED = [
+  'mobile','pos','search','checkedit','inventory',
+  'reports','analytics','management','master','audit','backup'
+];
 
-const HOME_URL = APP_URL + '?page=mobile';
+let currentPage = '';
 
-let currentUrl = HOME_URL;
+function pageFromHash(){
+  let page = (window.location.hash || '').replace(/^#/, '');
 
-function openApp(url, addHistory = true){
-  if(!url) return;
-
-  currentUrl = url;
-
-  if(addHistory){
-    history.pushState(
-      {fnbPage:url},
-      '',
-      '#app'
-    );
+  if(page === '' || page === 'home'){
+    return 'mobile';
   }
 
-  frame.src = url;
+  return ALLOWED.indexOf(page) >= 0 ? page : 'mobile';
 }
 
-function goHome(){
-  currentUrl = HOME_URL;
-  frame.src = HOME_URL;
-}
+function loadCurrentRoute(){
+  const page = pageFromHash();
 
-window.addEventListener('popstate', function(){
-  goHome();
-});
-
-window.addEventListener('pageshow', function(){
-  if(!frame.src || frame.src === 'about:blank'){
-    goHome();
+  if(page === currentPage){
+    return;
   }
-});
+
+  currentPage = page;
+  loading.style.display = 'flex';
+  frame.src = APP_URL + '?page=' + encodeURIComponent(page);
+}
+
+function ensureInitialHash(){
+  if(!window.location.hash){
+    history.replaceState({fnbPage:'mobile'}, '', '#home');
+  }
+}
+
+window.addEventListener('hashchange', loadCurrentRoute);
+window.addEventListener('popstate', loadCurrentRoute);
+
+ensureInitialHash();
+loadCurrentRoute();
 
 frame.addEventListener('load', function(){
-  loading.style.display='none';
+  loading.style.display = 'none';
 });
 
 setTimeout(function(){
-  if(loading.style.display!=='none'){
-    err.style.display='block';
+  if(loading.style.display !== 'none'){
+    err.style.display = 'block';
   }
-},12000);
+}, 12000);
 
-/*
-  Start at Home.
-  replaceState prevents an unnecessary blank first history entry.
-*/
-history.replaceState(
-  {fnbPage:HOME_URL},
-  '',
-  '#home'
-);
-
-frame.src = HOME_URL;
-
-/*
-  Service Worker
-*/
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
-    navigator.serviceWorker
-      .register('./sw.js')
-      .catch(function(){});
+    navigator.serviceWorker.register('./sw.js', {
+      updateViaCache: 'none'
+    }).then(function(reg){
+      if(reg && reg.update){
+        return reg.update();
+      }
+    }).catch(function(){});
   });
 }
 </script>
-
 </body>
 </html>
