@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f47b00">
-<link rel="manifest" href="./manifest.json?v=20261013-v3">
+<link rel="manifest" href="./manifest.json?v=20261013-v4">
 <link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
 <link rel="apple-touch-icon" href="./FNB_Control_192.png">
 <title>Blue Reef F&amp;B Control</title>
@@ -87,16 +87,36 @@ function hideModule() {
 }
 
 function closeModule() {
-  if (currentPage === 'home') {
+  // Ignore a second tap/message while the first return is still processing.
+  if (isClosing) return;
+
+  // If already at home, do not move the browser history again.
+  if (currentPage === 'home' || shell.style.display !== 'block') {
     hideModule();
+    if (!(history.state && history.state.fnbMobilePage === 'home')) {
+      history.replaceState(
+        { fnbMobilePage: 'home' },
+        '',
+        location.pathname + location.search + '#home'
+      );
+    }
     return;
   }
-  // Use history only when its current entry is a module; otherwise show home safely.
-  if (history.state && history.state.fnbMobilePage && history.state.fnbMobilePage !== 'home') {
+
+  isClosing = true;
+  // Show home immediately; do not make the user wait for popstate.
+  hideModule();
+
+  const state = history.state;
+  if (state && state.fnbMobilePage && state.fnbMobilePage !== 'home') {
     history.back();
   } else {
-    hideModule();
-    history.replaceState({ fnbMobilePage: 'home' }, '', '#home');
+    history.replaceState(
+      { fnbMobilePage: 'home' },
+      '',
+      location.pathname + location.search + '#home'
+    );
+    isClosing = false;
   }
 }
 
@@ -109,10 +129,15 @@ window.addEventListener('popstate', function (event) {
   const key = state && state.fnbMobilePage;
   if (!key || key === 'home') {
     hideModule();
+    isClosing = false;
     return;
   }
-  if (Object.prototype.hasOwnProperty.call(ROUTES, key)) showModule(key);
-  else hideModule();
+  if (Object.prototype.hasOwnProperty.call(ROUTES, key)) {
+    showModule(key);
+  } else {
+    hideModule();
+    isClosing = false;
+  }
 });
 
 // Messages from a module can ask the GitHub shell to return home.
@@ -137,7 +162,7 @@ history.replaceState({ fnbMobilePage: 'home' }, '', location.pathname + location
 // Register and refresh the PWA service worker; this does not touch Apps Script data.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js?v=20261013-v3', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=20261013-v4', { updateViaCache: 'none' })
       .then(function (registration) {
         if (registration && registration.update) return registration.update();
       })
