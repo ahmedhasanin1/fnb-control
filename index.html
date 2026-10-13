@@ -23,50 +23,127 @@
     <section class="hero"><h2>F&amp;B Financial Control System</h2><p>Choose one of the four mobile sections below.</p></section>
     <div class="sectionTitle">MAIN MENU</div>
     <div class="grid">
-      <article class="card"><div class="bar orange"><button class="iconButton" type="button" aria-label="Open POS Checks" onclick="openModule('pos','POS CHECKS')">🧾</button><span class="status">LIVE</span></div><div class="body"><h3>POS CHECKS</h3><p>Create and manage POS checks.</p><button class="open" type="button" onclick="openModule('pos','POS CHECKS')">OPEN →</button></div></article>
-      <article class="card"><div class="bar dark"><button class="iconButton" type="button" aria-label="Open Check Search" onclick="openModule('search','CHECK SEARCH')">🔎</button><span class="status">LIVE</span></div><div class="body"><h3>CHECK SEARCH</h3><p>Search and review existing checks.</p><button class="open" type="button" onclick="openModule('search','CHECK SEARCH')">OPEN →</button></div></article>
-      <article class="card"><div class="bar orange"><button class="iconButton" type="button" aria-label="Open Reports" onclick="openModule('reports','REPORTS')">📈</button><span class="status">LIVE</span></div><div class="body"><h3>REPORTS</h3><p>Sales, outlet and financial reports.</p><button class="open" type="button" onclick="openModule('reports','REPORTS')">OPEN →</button></div></article>
-      <article class="card"><div class="bar dark"><button class="iconButton" type="button" aria-label="Open Dashboard" onclick="openModule('mobile','DASHBOARD')">📊</button><span class="status">LIVE</span></div><div class="body"><h3>DASHBOARD</h3><p>Live KPIs, system health and recent activity.</p><button class="open" type="button" onclick="openModule('mobile','DASHBOARD')">OPEN →</button></div></article>
+      <article class="card"><div class="bar orange"><button class="iconButton" type="button" aria-label="Open POS Checks" onclick="openModule('pos')">🧾</button><span class="status">LIVE</span></div><div class="body"><h3>POS CHECKS</h3><p>Create and manage POS checks.</p><button class="open" type="button" onclick="openModule('pos')">OPEN →</button></div></article>
+      <article class="card"><div class="bar dark"><button class="iconButton" type="button" aria-label="Open Check Search" onclick="openModule('search')">🔎</button><span class="status">LIVE</span></div><div class="body"><h3>CHECK SEARCH</h3><p>Search and review existing checks.</p><button class="open" type="button" onclick="openModule('search')">OPEN →</button></div></article>
+      <article class="card"><div class="bar orange"><button class="iconButton" type="button" aria-label="Open Reports" onclick="openModule('reports')">📈</button><span class="status">LIVE</span></div><div class="body"><h3>REPORTS</h3><p>Sales, outlet and financial reports.</p><button class="open" type="button" onclick="openModule('reports')">OPEN →</button></div></article>
+      <article class="card"><div class="bar dark"><button class="iconButton" type="button" aria-label="Open Dashboard" onclick="openModule('mobile')">📊</button><span class="status">LIVE</span></div><div class="body"><h3>DASHBOARD</h3><p>Live KPIs, system health and recent activity.</p><button class="open" type="button" onclick="openModule('mobile')">OPEN →</button></div></article>
     </div>
     <div class="foot">Blue Reef Resort • F&amp;B Control</div>
   </main>
 </div>
-<div id="shell" class="shell" aria-hidden="true"><div class="shellHead"><div id="shellTitle" class="shellTitle">Module</div><button class="back" type="button" onclick="closeModule()">← HOME</button></div><div id="loading" class="loading">Opening section…</div><iframe id="frame" class="frame" title="F&amp;B mobile section" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-window.addEventListener('message', function(event) {
-  if (
-    event.data &&
-    event.data.type === 'FNB_CLOSE_MODULE'
-  ) {
-    closeModule();
-  }
-});
-  <script>
+<div id="shell" class="shell" aria-hidden="true">
+  <div class="shellHead"><div id="shellTitle" class="shellTitle">Module</div><button class="back" type="button" onclick="closeModule()">← HOME</button></div>
+  <div id="loading" class="loading">Opening section…</div>
+  <iframe id="frame" class="frame" title="F&amp;B mobile section" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</div>
+<script>
 'use strict';
-  window.addEventListener('message', function(event) {
-  const data = event.data;
 
+// Keep this URL identical to the active Apps Script Web App URL.
+const APP_URL = 'https://script.google.com/macros/s/AKfycbzIxoJBWe264JWkJ2OMGwVHuBdm6zlF8EaiWFfe1lbvjnTk-sVFcHpwYgFnSdyBxNmqwQ/exec';
+const ROUTES = {
+  pos: { title: 'POS CHECKS', page: 'pos' },
+  search: { title: 'CHECK SEARCH', page: 'search' },
+  reports: { title: 'REPORTS', page: 'reports' },
+  mobile: { title: 'DASHBOARD', page: 'mobile' }
+};
+
+const shell = document.getElementById('shell');
+const frame = document.getElementById('frame');
+const loading = document.getElementById('loading');
+const shellTitle = document.getElementById('shellTitle');
+let currentPage = 'home';
+let isClosing = false;
+
+function routeUrl(page) {
+  return APP_URL + '?page=' + encodeURIComponent(page);
+}
+
+function showModule(key) {
+  const route = ROUTES[key] || ROUTES.mobile;
+  currentPage = key in ROUTES ? key : 'mobile';
+  isClosing = false;
+  shellTitle.textContent = route.title;
+  shell.style.display = 'block';
+  shell.setAttribute('aria-hidden', 'false');
+  loading.style.display = 'flex';
+  frame.src = routeUrl(route.page);
+}
+
+function openModule(key) {
+  if (!Object.prototype.hasOwnProperty.call(ROUTES, key)) return;
+  if (currentPage === key && shell.style.display === 'block') return;
+  history.pushState({ fnbMobilePage: key }, '', '#' + key);
+  showModule(key);
+}
+
+function hideModule() {
+  currentPage = 'home';
+  shell.style.display = 'none';
+  shell.setAttribute('aria-hidden', 'true');
+  loading.style.display = 'none';
+  // Stop the remote page when hidden. No POS data or server logic is changed.
+  frame.src = 'about:blank';
+}
+
+function closeModule() {
+  if (currentPage === 'home') {
+    hideModule();
+    return;
+  }
+  // Use history only when its current entry is a module; otherwise show home safely.
+  if (history.state && history.state.fnbMobilePage && history.state.fnbMobilePage !== 'home') {
+    history.back();
+  } else {
+    hideModule();
+    history.replaceState({ fnbMobilePage: 'home' }, '', '#home');
+  }
+}
+
+frame.addEventListener('load', function () {
+  loading.style.display = 'none';
+});
+
+window.addEventListener('popstate', function (event) {
+  const state = event.state;
+  const key = state && state.fnbMobilePage;
+  if (!key || key === 'home') {
+    hideModule();
+    return;
+  }
+  if (Object.prototype.hasOwnProperty.call(ROUTES, key)) showModule(key);
+  else hideModule();
+});
+
+// Messages from a module can ask the GitHub shell to return home.
+window.addEventListener('message', function (event) {
+  if (event.source !== frame.contentWindow) return;
+  const data = event.data;
   if (!data || typeof data !== 'object') return;
 
   if (data.type === 'FNB_CLOSE_MODULE') {
     closeModule();
+    return;
+  }
+
+  if (data.type === 'FNB_NAVIGATE' && typeof data.page === 'string' && Object.prototype.hasOwnProperty.call(ROUTES, data.page)) {
+    openModule(data.page);
   }
 });
-https://script.google.com/macros/s/AKfycbzIxoJBWe264JWkJ2OMGwVHuBdm6zlF8EaiWFfe1lbvjnTk-sVFcHpwYgFnSdyBxNmqwQ/exec
-const ROUTES={pos:'POS CHECKS',search:'CHECK SEARCH',reports:'REPORTS',mobile:'DASHBOARD'};
-const shell=document.getElementById('shell');
-const frame=document.getElementById('frame');
-const loading=document.getElementById('loading');
-const shellTitle=document.getElementById('shellTitle');
-let currentPage='home';
-function routeUrl(page){return APP_URL+'?page='+encodeURIComponent(page)}
-function showModule(page){if(!Object.prototype.hasOwnProperty.call(ROUTES,page))page='mobile';currentPage=page;shellTitle.textContent=ROUTES[page];shell.style.display='block';shell.setAttribute('aria-hidden','false');loading.style.display='flex';frame.src=routeUrl(page)}
-function openModule(page,title){if(!Object.prototype.hasOwnProperty.call(ROUTES,page))return;if(currentPage===page&&shell.style.display==='block'){frame.src=routeUrl(page);return}history.pushState({fnbMobilePage:page},'', '#'+page);showModule(page)}
-function hideModule(){currentPage='home';shell.style.display='none';shell.setAttribute('aria-hidden','true');loading.style.display='none';frame.src='about:blank'}
-function closeModule(){if(history.state&&history.state.fnbMobilePage){history.back()}else{hideModule();history.replaceState({fnbMobilePage:'home'},'','#home')}}
-frame.addEventListener('load',function(){loading.style.display='none'})
-window.addEventListener('popstate',function(event){const page=event.state&&event.state.fnbMobilePage;if(!page||page==='home'){hideModule();return}showModule(page)})
-history.replaceState({fnbMobilePage:'home'},'','#home')
-if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js?v=20261013-v3',{updateViaCache:'none'}).then(function(reg){if(reg&&reg.update)return reg.update()}).catch(function(){})})}
+
+// Establish a known initial history state for browser/device Back.
+history.replaceState({ fnbMobilePage: 'home' }, '', location.pathname + location.search + '#home');
+
+// Register and refresh the PWA service worker; this does not touch Apps Script data.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js?v=20261013-v3', { updateViaCache: 'none' })
+      .then(function (registration) {
+        if (registration && registration.update) return registration.update();
+      })
+      .catch(function (error) { console.warn('Service worker registration failed:', error); });
+  });
+}
 </script>
 </body>
 </html>
