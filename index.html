@@ -32,7 +32,15 @@
   </main>
 </div>
 <div id="shell" class="shell" aria-hidden="true"><div class="shellHead"><div id="shellTitle" class="shellTitle">Module</div><button class="back" type="button" onclick="closeModule()">← HOME</button></div><div id="loading" class="loading">Opening section…</div><iframe id="frame" class="frame" title="F&amp;B mobile section" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-<script>
+window.addEventListener('message', function(event) {
+  if (
+    event.data &&
+    event.data.type === 'FNB_CLOSE_MODULE'
+  ) {
+    closeModule();
+  }
+});
+  <script>
 'use strict';
   window.addEventListener('message', function(event) {
   const data = event.data;
