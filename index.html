@@ -55,6 +55,28 @@ function render(){const q=(document.getElementById('search').value||'').toLowerC
 function openModule(page,type,title){history.pushState({page},'', '#'+page);document.getElementById('shellTitle').textContent=title;document.getElementById('shell').style.display='block';const frame=document.getElementById('frame');if(type==='local'){frame.src='./'+page+'.html?v=20261004-v13'}else{frame.src=APP_URL+'?page='+encodeURIComponent(page)};}
 function closeModule(){document.getElementById('shell').style.display='none';document.getElementById('frame').src='about:blank';if(location.hash){history.pushState({page:'home'},'', '#home')}}
 window.addEventListener('popstate',()=>{if(location.hash===''||location.hash==='#home')closeModule();});
+  window.addEventListener('message', function(event) {
+  if (event.source !== document.getElementById('frame').contentWindow) {
+    return;
+  }
+
+  const data = event.data;
+  if (!data || data.type !== 'FNB_NAVIGATE') return;
+
+  const routes = {
+    mobile:  {type:'remote', title:'DASHBOARD'},
+    pos:     {type:'remote', title:'POS CHECKS'},
+    search:  {type:'remote', title:'CHECK SEARCH'},
+    reports: {type:'remote', title:'REPORTS'}
+  };
+
+  const page = String(data.page || '').toLowerCase();
+  const route = routes[page];
+
+  if (!route) return;
+
+  openModule(page, route.type, route.title);
+});
 let deferredPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').style.display='inline-block'});
 document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt){alert('Use Chrome menu ⋮ → Add to Home screen → Install app.');return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').style.display='none'});
 window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').style.display='none'});
