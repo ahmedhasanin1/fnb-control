@@ -4,83 +4,52 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f47b00">
-<link rel="manifest" href="./manifest.json?v=20261004-v14">
+<link rel="manifest" href="./manifest.json?v=20261013-v3">
 <link rel="icon" type="image/png" sizes="192x192" href="./FNB_Control_192.png">
 <link rel="apple-touch-icon" href="./FNB_Control_192.png">
-<title>F&B Control Center</title>
+<title>Blue Reef F&amp;B Control</title>
 <style>
-*{box-sizing:border-box} html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#eef1f3;color:#20262d}
-body{overflow:hidden}.app{height:100%;display:flex;flex-direction:column}.top{background:linear-gradient(135deg,#20262d,#303943 55%,#f47b00);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
-.brand{display:flex;align-items:center;gap:10px}.logo{width:44px;height:44px;border-radius:12px}.title{font-size:18px;font-weight:900}.sub{font-size:11px;opacity:.82;margin-top:3px}.actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.btn{border:0;border-radius:9px;padding:9px 11px;font-weight:800;cursor:pointer}.install{background:#f47b00;color:#fff}.home{background:rgba(255,255,255,.14);color:#fff;display:none}
-main{flex:1;overflow:auto;padding:12px}.hero{background:linear-gradient(135deg,#263238,#6e5234);color:#fff;border-radius:16px;padding:16px;margin-bottom:12px}.hero h2{margin:0;font-size:19px}.hero p{margin:5px 0 0;font-size:12px;opacity:.82}.search{width:100%;padding:11px;border:1px solid #ccd3d7;border-radius:10px;margin-bottom:12px;font-size:14px;background:#fff}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.08)}.bar{height:48px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;background:#263238;color:#fff}.bar.orange{background:#ff8a12}.icon{font-size:24px}.status{font-size:9px;font-weight:900;background:#17b56a;padding:4px 7px;border-radius:999px}.body{padding:11px}.body h3{margin:0 0 4px;font-size:12px}.body p{margin:0 0 10px;color:#68737c;font-size:10px;min-height:28px}.open{display:block;width:100%;padding:9px;border:0;border-radius:8px;background:#f47b00;color:#fff;font-weight:900;text-align:center;text-decoration:none;font-size:10px}.shell{position:fixed;inset:0;background:#eef1f3;display:none;z-index:10}.shellHead{height:54px;background:#263238;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px}.shellTitle{font-weight:900;font-size:13px}.back{background:#f47b00;color:#fff;border:0;border-radius:8px;padding:8px 10px;font-weight:900}.frame{width:100%;height:calc(100% - 54px);border:0;background:#fff}
-@media(max-width:620px){.grid{grid-template-columns:1fr}.top{padding:12px}.title{font-size:16px}}
+:root{--orange:#f47b00;--orange2:#ff9b32;--dark:#20262d;--dark2:#303943;--bg:#eef1f3;--line:#e0e5e9;--muted:#71808a;--shadow:0 7px 20px rgba(20,28,36,.1)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--dark)}
+.app{max-width:760px;margin:0 auto;min-height:100vh}.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:11px;padding:14px 16px;color:#fff;background:linear-gradient(125deg,#20262d 0%,#303943 56%,#f47b00 100%);box-shadow:0 6px 18px rgba(0,0,0,.15)}.logo{width:44px;height:44px;border-radius:12px;object-fit:contain;background:#fff;padding:4px;flex:0 0 auto}.title{font-size:17px;font-weight:900;line-height:1.1}.subtitle{margin-top:4px;font-size:10px;opacity:.86}.content{padding:13px}.hero{padding:16px;border-radius:16px;color:#fff;background:radial-gradient(circle at 100% 0,rgba(244,123,0,.35),transparent 46%),linear-gradient(130deg,#2b343d,#45525d);box-shadow:var(--shadow)}.hero h2{margin:0;font-size:18px}.hero p{margin:5px 0 0;font-size:11px;line-height:1.45;opacity:.86}.sectionTitle{margin:15px 2px 9px;font-size:11px;font-weight:900;letter-spacing:.3px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:15px;background:#fff;box-shadow:var(--shadow)}.bar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:9px 11px;color:#fff}.bar.orange{background:linear-gradient(110deg,var(--orange),var(--orange2))}.bar.dark{background:linear-gradient(110deg,#29323a,#46515b)}.iconButton{width:39px;height:39px;border-radius:11px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.15);font-size:22px;color:#fff;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,255,255,.25)}.iconButton:active,.open:active{transform:scale(.97)}.status{padding:4px 7px;border-radius:999px;background:#18b957;color:#fff;font-size:8px;font-weight:900}.body{padding:11px}.body h3{margin:0;font-size:12px;font-weight:900}.body p{min-height:30px;margin:5px 0 10px;color:var(--muted);font-size:10px;line-height:1.4}.open{display:flex;align-items:center;justify-content:center;min-height:36px;width:100%;padding:9px;border:0;border-radius:9px;background:var(--orange);color:#fff;text-decoration:none;text-align:center;font-size:10px;font-weight:900;cursor:pointer;touch-action:manipulation}.foot{margin-top:13px;padding:10px 12px;color:#66727b;text-align:center;font-size:9px}
+.shell{position:fixed;inset:0;background:var(--bg);display:none;z-index:20}.shellHead{height:56px;background:var(--dark2);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:10px}.shellTitle{font-size:13px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.back{flex:0 0 auto;background:var(--orange);color:#fff;border:0;border-radius:9px;padding:9px 11px;font-weight:900;cursor:pointer}.frame{display:block;width:100%;height:calc(100% - 56px);border:0;background:#fff}.loading{position:absolute;inset:56px 0 0;display:none;align-items:center;justify-content:center;background:rgba(238,241,243,.88);z-index:2;font-size:12px;font-weight:800;color:#3a454d}
+@media(max-width:430px){.content{padding:10px}.grid{gap:8px}.body{padding:9px}.title{font-size:15px}}@media(max-width:340px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="top">
-    <div class="brand"><img class="logo" src="./FNB_Control_192.png"><div><div class="title">F&B CONTROL CENTER</div><div class="sub">Blue Reef Resort • Food & Beverage Management System</div></div></div>
-    <div class="actions"><button id="installBtn" class="btn install" style="display:none">📲 INSTALL APP</button></div>
-  </header>
-  <main>
-    <section class="hero"><h2>F&B Financial Control System</h2><p>Sales • Inventory • Cost Control • Analytics • Management Intelligence</p></section>
-    <input id="search" class="search" placeholder="Search modules..." oninput="render()">
-    <div id="grid" class="grid"></div>
+  <header class="top"><img class="logo" src="./FNB_Control_192.png" alt="Blue Reef Resort" onerror="this.style.display='none'"><div><div class="title">F&amp;B CONTROL CENTER</div><div class="subtitle">Blue Reef Resort • Food &amp; Beverage Management</div></div></header>
+  <main class="content">
+    <section class="hero"><h2>F&amp;B Financial Control System</h2><p>Choose one of the four mobile sections below.</p></section>
+    <div class="sectionTitle">MAIN MENU</div>
+    <div class="grid">
+      <article class="card"><div class="bar orange"><button class="iconButton" type="button" aria-label="Open POS Checks" onclick="openModule('pos','POS CHECKS')">🧾</button><span class="status">LIVE</span></div><div class="body"><h3>POS CHECKS</h3><p>Create and manage POS checks.</p><button class="open" type="button" onclick="openModule('pos','POS CHECKS')">OPEN →</button></div></article>
+      <article class="card"><div class="bar dark"><button class="iconButton" type="button" aria-label="Open Check Search" onclick="openModule('search','CHECK SEARCH')">🔎</button><span class="status">LIVE</span></div><div class="body"><h3>CHECK SEARCH</h3><p>Search and review existing checks.</p><button class="open" type="button" onclick="openModule('search','CHECK SEARCH')">OPEN →</button></div></article>
+      <article class="card"><div class="bar orange"><button class="iconButton" type="button" aria-label="Open Reports" onclick="openModule('reports','REPORTS')">📈</button><span class="status">LIVE</span></div><div class="body"><h3>REPORTS</h3><p>Sales, outlet and financial reports.</p><button class="open" type="button" onclick="openModule('reports','REPORTS')">OPEN →</button></div></article>
+      <article class="card"><div class="bar dark"><button class="iconButton" type="button" aria-label="Open Dashboard" onclick="openModule('mobile','DASHBOARD')">📊</button><span class="status">LIVE</span></div><div class="body"><h3>DASHBOARD</h3><p>Live KPIs, system health and recent activity.</p><button class="open" type="button" onclick="openModule('mobile','DASHBOARD')">OPEN →</button></div></article>
+    </div>
+    <div class="foot">Blue Reef Resort • F&amp;B Control</div>
   </main>
 </div>
-<div id="shell" class="shell">
-  <div class="shellHead"><div id="shellTitle" class="shellTitle">Module</div><button class="back" onclick="closeModule()">← HOME</button></div>
-  <iframe id="frame" class="frame" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-</div>
+<div id="shell" class="shell" aria-hidden="true"><div class="shellHead"><div id="shellTitle" class="shellTitle">Module</div><button class="back" type="button" onclick="closeModule()">← HOME</button></div><div id="loading" class="loading">Opening section…</div><iframe id="frame" class="frame" title="F&amp;B mobile section" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
 <script>
 'use strict';
 const APP_URL='https://script.google.com/macros/s/AKfycbzIxoJBWe264JWk2OMGwVHuBdm6zIF8EaiWFfe1lbvjnTk-sVFchpwYqFnSdyBxNmqwQ/exec';
- {icon:'🧾',title:'POS CHECKS',desc:'Create and manage checks.',page:'pos',type:'remote',theme:'orange'},
- {icon:'🔎',title:'CHECK SEARCH',desc:'Search, view, edit, void and print checks.',page:'search',type:'remote',theme:'dark'},
- {icon:'📦',title:'INVENTORY & STOCK',desc:'Stock control and monthly closing.',page:'inventory',type:'remote',theme:'dark'},
- {icon:'📊',title:'REPORTS & DASHBOARD',desc:'Sales, outlet and financial reports.',page:'reports',type:'remote',theme:'orange'},
- {icon:'📈',title:'F&B ANALYTICS',desc:'Analytics with Hybrid AI management interpretation.',page:'analytics',type:'local',theme:'orange'},
- {icon:'🧠',title:'MANAGEMENT INTELLIGENCE',desc:'AI-powered management analysis and actions.',page:'management',type:'local',theme:'orange'},
- {icon:'🛠️',title:'MASTER DATA',desc:'Products, staff, outlets and settings.',page:'master',type:'remote',theme:'dark'},
- {icon:'🔐',title:'AUDIT & SECURITY',desc:'Audit trail and control activity.',page:'audit',type:'remote',theme:'orange'},
- {icon:'💾',title:'SYSTEM BACKUP',desc:'Protected backup operations.',page:'backup',type:'remote',theme:'dark'},
- {icon:'🔧',title:'SYSTEM REPAIR',desc:'Setup, repair and restore core system structure.',page:'repair',type:'remote',theme:'dark'},
- {icon:'🔢',title:'CHECK SEQUENCE',desc:'Manage global check-number sequences.',page:'sequence',type:'remote',theme:'orange'},
- {icon:'✅',title:'PRODUCTION READINESS',desc:'Run system readiness and production tests.',page:'readiness',type:'remote',theme:'dark'},
- {icon:'💱',title:'EXCHANGE RATES',desc:'Manage currencies and exchange rates.',page:'exchange',type:'remote',theme:'orange'}
-];
-function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]||m))}
-function render(){const q=(document.getElementById('search').value||'').toLowerCase().trim();const rows=MODULES.filter(m=>!q||((m.title+' '+m.desc).toLowerCase().includes(q)));document.getElementById('grid').innerHTML=rows.map(m=>`<article class="card"><div class="bar ${m.theme==='orange'?'orange':''}"><div class="icon">${m.icon}</div><span class="status">${m.type==='local'?'AI LIVE':'LIVE'}</span></div><div class="body"><h3>${esc(m.title)}</h3><p>${esc(m.desc)}</p><a href="#" class="open" onclick="openModule('${m.page}','${m.type}','${m.title.replace(/'/g,"\'")}');return false">OPEN →</a></div></article>`).join('')}
-function openModule(page,type,title){history.pushState({page},'', '#'+page);document.getElementById('shellTitle').textContent=title;document.getElementById('shell').style.display='block';const frame=document.getElementById('frame');if(type==='local'){frame.src='./'+page+'.html?v=20261004-v13'}else{frame.src=APP_URL+'?page='+encodeURIComponent(page)};}
-function closeModule(){document.getElementById('shell').style.display='none';document.getElementById('frame').src='about:blank';if(location.hash){history.pushState({page:'home'},'', '#home')}}
-window.addEventListener('popstate',()=>{if(location.hash===''||location.hash==='#home')closeModule();});
-  window.addEventListener('message', function(event) {
-  if (event.source !== document.getElementById('frame').contentWindow) {
-    return;
-  }
-
-  const data = event.data;
-  if (!data || data.type !== 'FNB_NAVIGATE') return;
-
-  const routes = {
-    mobile:  {type:'remote', title:'DASHBOARD'},
-    pos:     {type:'remote', title:'POS CHECKS'},
-    search:  {type:'remote', title:'CHECK SEARCH'},
-    reports: {type:'remote', title:'REPORTS'}
-  };
-
-  const page = String(data.page || '').toLowerCase();
-  const route = routes[page];
-
-  if (!route) return;
-
-  openModule(page, route.type, route.title);
-});
-let deferredPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').style.display='inline-block'});
-document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt){alert('Use Chrome menu ⋮ → Add to Home screen → Install app.');return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').style.display='none'});
-window.addEventListener('appinstalled',()=>{document.getElementById('installBtn').style.display='none'});
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=20261004-v14',{updateViaCache:'none'}).then(r=>r.update&&r.update()).catch(()=>{}));}
-render();
+const ROUTES={pos:'POS CHECKS',search:'CHECK SEARCH',reports:'REPORTS',mobile:'DASHBOARD'};
+const shell=document.getElementById('shell');
+const frame=document.getElementById('frame');
+const loading=document.getElementById('loading');
+const shellTitle=document.getElementById('shellTitle');
+let currentPage='home';
+function routeUrl(page){return APP_URL+'?page='+encodeURIComponent(page)}
+function showModule(page){if(!Object.prototype.hasOwnProperty.call(ROUTES,page))page='mobile';currentPage=page;shellTitle.textContent=ROUTES[page];shell.style.display='block';shell.setAttribute('aria-hidden','false');loading.style.display='flex';frame.src=routeUrl(page)}
+function openModule(page,title){if(!Object.prototype.hasOwnProperty.call(ROUTES,page))return;if(currentPage===page&&shell.style.display==='block'){frame.src=routeUrl(page);return}history.pushState({fnbMobilePage:page},'', '#'+page);showModule(page)}
+function hideModule(){currentPage='home';shell.style.display='none';shell.setAttribute('aria-hidden','true');loading.style.display='none';frame.src='about:blank'}
+function closeModule(){if(history.state&&history.state.fnbMobilePage){history.back()}else{hideModule();history.replaceState({fnbMobilePage:'home'},'','#home')}}
+frame.addEventListener('load',function(){loading.style.display='none'})
+window.addEventListener('popstate',function(event){const page=event.state&&event.state.fnbMobilePage;if(!page||page==='home'){hideModule();return}showModule(page)})
+history.replaceState({fnbMobilePage:'home'},'','#home')
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js?v=20261013-v3',{updateViaCache:'none'}).then(function(reg){if(reg&&reg.update)return reg.update()}).catch(function(){})})}
 </script>
 </body>
 </html>
