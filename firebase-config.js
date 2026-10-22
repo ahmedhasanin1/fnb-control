@@ -5,7 +5,7 @@
     projectId: "romantic-89e4b",
     messagingSenderId: "493265471576",
     appId: "1:493265471576:web:773abf00e675520d1ce22d",
-    storageBucket: "romantic-89e4b.firebasestorage.app",
+    storageBucket: "",
     vapidKey: "BHJiQe-aVEadPaQ8Mm-Jf-ncx-UuNDvfRn9ykzZLsXSyIK0kh6Fm75NLDkgg9nRfsMQWoVCUggvX-y-ef9XAdUM"
   };
 })(self);
